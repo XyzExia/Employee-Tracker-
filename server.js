@@ -1,6 +1,7 @@
 const mysql = require('mysql2');
 const inquirer = require("inquirer");
 const table = require("console.table");
+const { start } = require('repl');
 
 const db = mysql.createConnection(
     {
@@ -34,7 +35,7 @@ const db = mysql.createConnection(
       .then(function(res) {
         console.log("You entered: " + res.option);
   
-        switch (result.option) {
+        switch (res.option) {
           case "Add department":
             //done
             addDepartment();
@@ -52,9 +53,11 @@ const db = mysql.createConnection(
             viewDepartment();
             break;
           case "View roles":
+            //done
             viewRoles();
             break;
           case "View employees":
+            //done
             viewEmployees();
             break;
           case "Update employee role":
@@ -73,11 +76,11 @@ function addDepartment() {
         message: "What is the name of the department?",
         name: "department"
     }).then(function(res){
-      db.query('INSERT INTO department (name) VALUES (?)', [res.department], function(err, data) {
+      db.query('INSERT INTO department (name) VALUES (?)', [res.department], function(err, res) {
         if (err) throw err;
-        console.table("Successfully Inserted");
-        Start();
+        console.table(res);
     })
+    Start();
     })
 }
 
@@ -103,11 +106,11 @@ function addEmployee(){
             message: "What is the employees manager's ID?"
 
   }]).then(function(res){
-    db.query('INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)', [res.firstName, res.lastName, res.roleId, res.managerId], function(err, data) {
+    db.query('INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)', [res.firstName, res.lastName, res.roleId, res.managerId], function(err, res) {
       if (err) throw err;
-      console.table("Successfully Inserted");
-      Start();
+      console.table(res);
     })
+    Start();
     })
   }
   
@@ -127,23 +130,59 @@ function addEmployee(){
         name: "department_id"
     }
 ]).then(function (res) {
-    connection.query("INSERT INTO roles (title, salary, department_id) values (?, ?, ?)", [res.title, res.salary, res.department_id], function (err, data) {
+    db.query("INSERT INTO roles (title, salary, department_id) values (?, ?, ?)", [res.title, res.salary, res.department_id], function (err, res) {
       if (err) throw err;
-      console.table(data);
+      console.table(res);
     })
     Start();
 })
 
 }
 
-function viewDepartment(){
-  connection.query("SELECT * FROM employee", function (err, data) {
-    console.table(data);
+function viewEmployees(){
+  db.query("SELECT * FROM employee", function(err, res) {
+    if (err) throw err;
+    console.table(res)
+    Start();
   })
 }
 
+function viewDepartment(){
+  db.query("SELECT * FROM department", function(err, res) {
+    if (err) throw err;
+    console.table(res)
+    Start();
+  })
+}
 
- 
+function updateEmployee() {
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        message: "Which employee would you like to update?",
+        name: "eeUpdate"
+      },
+
+      {
+        type: "input",
+        message: "What do you want to update to?",
+        name: "updateRole"
+      }
+    ])
+    .then(function(res) {
+      db.query('UPDATE employee SET role_id=? WHERE first_name= ?',[res.updateRole, res.eeUpdate], function(err, res) {
+        if (err) throw err;
+        console.table(res);
+        Start();
+      });
+    });
+}
+
+function quit() {
+  connection.end();
+  process.exit();
+}
 
 
 
