@@ -180,7 +180,7 @@ function updateEmployee() {
 }
 
 function quit() {
-  connection.end();
+  db.end();
   process.exit();
 }
 
