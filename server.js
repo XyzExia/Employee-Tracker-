@@ -9,8 +9,8 @@ const db = mysql.createConnection(
       // MySQL username,
       user: 'root',
       // MySQL password
-      password: 'Zgmfx20a!',
-      database: 'workers_db'
+      password: '',
+      database: ''
     },
     console.log(`Connected to the workers_db database.`)
   );
@@ -155,6 +155,14 @@ function viewDepartment(){
   })
 }
 
+function viewRoles(){
+  db.query("SELECT * FROM roles", function(err, res) {
+    if (err) throw err;
+    console.table(res)
+    Start();
+  })
+}
+
 function updateEmployee() {
   inquirer
     .prompt([
@@ -171,7 +179,7 @@ function updateEmployee() {
       }
     ])
     .then(function(res) {
-      db.query('UPDATE employee SET role_id=? WHERE first_name= ?',[res.updateRole, res.eeUpdate], function(err, res) {
+      db.query('UPDATE employee SET role_id=? WHERE first_name=?',[res.updateRole, res.eeUpdate], function(err, res) {
         if (err) throw err;
         console.table(res);
         Start();
